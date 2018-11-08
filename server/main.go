@@ -4,7 +4,7 @@ import (
 	"log"
 	"net"
 
-	"github.com/hailwind/testing/config"
+	"github.com/hailwind/udp-bench/config"
 )
 
 func checkError(err error, args ...string) {
@@ -26,7 +26,7 @@ func main() {
 	t2ichan := make(chan struct{})
 	t2i := func() {
 		defer close(t2ichan)
-		frame := make([]byte, 130, 1300)
+		frame := make([]byte, 9600, 9600)
 		for {
 			conn.ReadFromUDP([]byte(frame))
 		}

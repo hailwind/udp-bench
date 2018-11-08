@@ -5,7 +5,7 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/hailwind/testing/config"
+	"github.com/hailwind/udp-bench/config"
 )
 
 func checkError(err error, args ...string) {
@@ -25,7 +25,7 @@ func main() {
 
 	i2t := func() {
 		defer close(i2tchan)
-		frame := make([]byte, 130, 1300)
+		frame := make([]byte, 9600, 9600)
 		for {
 			n, err := conn.Write([]byte(frame))
 			checkError(err, "udp.Write", "n:", strconv.Itoa(n))

@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net"
+	"os"
 	"strconv"
 
 	"github.com/hailwind/udp-bench/config"
@@ -15,6 +16,11 @@ func checkError(err error, args ...string) {
 }
 
 func main() {
+	log.Println(os.Args)
+	if len(os.Args) == 3 {
+		config.ServerAddr = os.Args[1]
+		config.Mtu, _ = strconv.Atoi(os.Args[2])
+	}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	conn, err := net.Dial("udp", config.ServerAddr)
 	checkError(err, "net.Dail")
@@ -25,9 +31,10 @@ func main() {
 
 	i2t := func() {
 		defer close(i2tchan)
-		frame := make([]byte, 9600, 9600)
+		frame := make([]byte, config.Mtu, config.Mtu)
 		for {
 			n, err := conn.Write([]byte(frame))
+			//fmt.Println("n:", n)
 			checkError(err, "udp.Write", "n:", strconv.Itoa(n))
 		}
 	}

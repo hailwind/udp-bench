@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"net"
 	"os"
 	"strconv"
 
 	"github.com/hailwind/udp-bench/config"
+	kcp "github.com/xtaci/kcp-go"
 )
 
 func checkError(err error, args ...string) {
@@ -22,12 +22,9 @@ func main() {
 		config.Mtu, _ = strconv.Atoi(os.Args[2])
 	}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	addr, err := net.ResolveUDPAddr("udp", config.ServerAddr)
-	checkError(err, "resolveUDPAddr")
-
-	conn, err := net.ListenUDP("udp", addr)
-	checkError(err, "listenUDP")
-
+	lis, _ := kcp.ListenWithOptions(config.ServerAddr, nil, 10, 3)
+	conn, _ := lis.AcceptKCP()
+	conn.SetStreamMode(true)
 	defer conn.Close()
 
 	t2ichan := make(chan struct{})
@@ -35,7 +32,10 @@ func main() {
 		defer close(t2ichan)
 		frame := make([]byte, config.Mtu, config.Mtu)
 		for {
-			conn.ReadFromUDP([]byte(frame))
+			n, err := conn.Read([]byte(frame))
+			checkError(err, "udp.Read", "n:", strconv.Itoa(n))
+			//fmt.Println(n)
+			//conn.ReadFromUDP([]byte(frame))
 		}
 	}
 	go t2i()

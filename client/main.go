@@ -2,11 +2,11 @@ package main
 
 import (
 	"log"
-	"net"
 	"os"
 	"strconv"
 
 	"github.com/hailwind/udp-bench/config"
+	kcp "github.com/xtaci/kcp-go"
 )
 
 func checkError(err error, args ...string) {
@@ -22,7 +22,9 @@ func main() {
 		config.Mtu, _ = strconv.Atoi(os.Args[2])
 	}
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	conn, err := net.Dial("udp", config.ServerAddr)
+	//conn, err := net.Dial("udp", config.ServerAddr)
+	conn, err := kcp.DialWithOptions(config.ServerAddr, nil, 10, 3)
+	conn.SetStreamMode(true)
 	checkError(err, "net.Dail")
 
 	defer conn.Close()
